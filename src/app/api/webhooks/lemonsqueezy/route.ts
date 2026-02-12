@@ -84,7 +84,7 @@ function getPlanFromVariantId(variantId: string): SubscriptionPlan {
  * Handle subscription created event
  */
 async function handleSubscriptionCreated(event: WebhookEvent) {
-  const { attributes } = event.data;
+  const { id, attributes } = event.data;
   const userId = event.meta.custom_data?.user_id;
 
   if (!userId) {
@@ -99,7 +99,7 @@ async function handleSubscriptionCreated(event: WebhookEvent) {
     where: { userId },
     update: {
       lemonSqueezyCustomerId: attributes.customer_id.toString(),
-      lemonSqueezySubscriptionId: attributes.id,
+      lemonSqueezySubscriptionId: id,
       lemonSqueezyVariantId: attributes.variant_id.toString(),
       lemonSqueezyProductId: attributes.product_id.toString(),
       lemonSqueezyOrderId: attributes.order_id.toString(),
@@ -114,7 +114,7 @@ async function handleSubscriptionCreated(event: WebhookEvent) {
     create: {
       userId,
       lemonSqueezyCustomerId: attributes.customer_id.toString(),
-      lemonSqueezySubscriptionId: attributes.id,
+      lemonSqueezySubscriptionId: id,
       lemonSqueezyVariantId: attributes.variant_id.toString(),
       lemonSqueezyProductId: attributes.product_id.toString(),
       lemonSqueezyOrderId: attributes.order_id.toString(),
@@ -135,8 +135,8 @@ async function handleSubscriptionCreated(event: WebhookEvent) {
  * Handle subscription updated event
  */
 async function handleSubscriptionUpdated(event: WebhookEvent) {
-  const { attributes } = event.data;
-  const subscriptionId = attributes.id;
+  const { id, attributes } = event.data;
+  const subscriptionId = id;
 
   const plan = getPlanFromVariantId(attributes.variant_id.toString());
   const status = mapStatus(attributes.status);
@@ -162,8 +162,8 @@ async function handleSubscriptionUpdated(event: WebhookEvent) {
  * Handle subscription cancelled/expired event
  */
 async function handleSubscriptionEnded(event: WebhookEvent) {
-  const { attributes } = event.data;
-  const subscriptionId = attributes.id;
+  const { id, attributes } = event.data;
+  const subscriptionId = id;
 
   await prisma.subscription.update({
     where: { lemonSqueezySubscriptionId: subscriptionId },

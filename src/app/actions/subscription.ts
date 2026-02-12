@@ -109,6 +109,9 @@ export async function cancelSubscription() {
 
   // Get portal URL and redirect - user can cancel from there
   const portalUrl = await getCustomerPortalUrl();
+  if (!portalUrl) {
+    throw new Error("Failed to get customer portal URL");
+  }
   redirect(portalUrl);
 }
 
@@ -132,6 +135,9 @@ export async function updateSubscription(newVariantId: string) {
 
   // Get portal URL and redirect - user can change plan from there
   const portalUrl = await getCustomerPortalUrl();
+  if (!portalUrl) {
+    throw new Error("Failed to get customer portal URL");
+  }
   redirect(portalUrl);
 }
 
@@ -173,7 +179,7 @@ export async function syncSubscription() {
   // Fetch latest subscription data from Lemon Squeezy
   const subscriptions = await listSubscriptions({
     filter: {
-      customerId: subscription.lemonSqueezyCustomerId,
+      storeId: process.env.LEMONSQUEEZY_STORE_ID!,
     },
   });
 
