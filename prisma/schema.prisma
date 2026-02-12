@@ -23,6 +23,7 @@ model User {
   company       UserCompany?
   savedGrants   SavedGrant[]
   searchHistory SearchHistory[]
+  subscription  Subscription?
 
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
@@ -165,4 +166,53 @@ model SicCodeReference {
 
   @@index([section])
   @@index([division])
+}
+
+// Subscription models
+
+model Subscription {
+  id                        String              @id @default(cuid())
+  userId                    String              @unique
+  user                      User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  lemonSqueezyCustomerId    String?             @unique
+  lemonSqueezySubscriptionId String?            @unique
+  lemonSqueezyVariantId     String?
+  lemonSqueezyProductId     String?
+  lemonSqueezyOrderId       String?
+
+  plan                      SubscriptionPlan    @default(FREE)
+  status                    SubscriptionStatus  @default(FREE)
+
+  renewsAt                  DateTime?
+  endsAt                    DateTime?
+  trialEndsAt               DateTime?
+
+  isUsageBased              Boolean             @default(false)
+  isPaused                  Boolean             @default(false)
+
+  createdAt                 DateTime            @default(now())
+  updatedAt                 DateTime            @updatedAt
+
+  @@index([userId])
+  @@index([lemonSqueezyCustomerId])
+  @@index([status])
+}
+
+enum SubscriptionPlan {
+  FREE
+  STARTER
+  PROFESSIONAL
+  ENTERPRISE
+}
+
+enum SubscriptionStatus {
+  FREE
+  ON_TRIAL
+  ACTIVE
+  PAUSED
+  PAST_DUE
+  UNPAID
+  CANCELLED
+  EXPIRED
 }

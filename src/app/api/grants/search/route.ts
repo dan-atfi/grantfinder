@@ -4,11 +4,27 @@ import { searchGrants } from "@/services/grants";
 import { buildCompanyMatchParams } from "@/services/grants/matching";
 import { grantSearchSchema } from "@/lib/validations/grants";
 import { prisma } from "@/lib/prisma";
+import { canPerformSearch } from "@/lib/subscription";
 
 export async function GET(request: NextRequest) {
   const session = await auth();
   if (!session?.user?.id) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  // Check subscription limits
+  const searchCheck = await canPerformSearch(session.user.id);
+  if (!searchCheck.allowed) {
+    return NextResponse.json(
+      {
+        error: "Search limit reached",
+        message: `You've used all ${searchCheck.limit} searches for this month. Upgrade your plan to continue searching.`,
+        limit: searchCheck.limit,
+        remaining: 0,
+        plan: searchCheck.plan,
+      },
+      { status: 403 }
+    );
   }
 
   const searchParams = request.nextUrl.searchParams;

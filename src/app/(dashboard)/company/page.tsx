@@ -140,20 +140,20 @@ export default function CompanyPage() {
                 <div className="grid grid-cols-2 gap-3 text-sm mb-4">
                   <div>
                     <span className="text-gray-500">Number: </span>
-                    <span>{(previewCompany as { company_number?: string }).company_number}</span>
+                    <span className="text-gray-900">{(previewCompany as { company_number?: string }).company_number}</span>
                   </div>
                   <div>
                     <span className="text-gray-500">Status: </span>
-                    <span>{(previewCompany as { company_status?: string }).company_status}</span>
+                    <span className="text-gray-900">{(previewCompany as { company_status?: string }).company_status}</span>
                   </div>
                   <div>
                     <span className="text-gray-500">Type: </span>
-                    <span>{(previewCompany as { company_type?: string }).company_type}</span>
+                    <span className="text-gray-900">{(previewCompany as { company_type?: string }).company_type}</span>
                   </div>
                   {(previewCompany as { sic_codes?: string[] }).sic_codes && (
                     <div>
                       <span className="text-gray-500">SIC Codes: </span>
-                      <span>
+                      <span className="text-gray-900">
                         {((previewCompany as { sic_codes?: string[] }).sic_codes ?? []).join(", ")}
                       </span>
                     </div>

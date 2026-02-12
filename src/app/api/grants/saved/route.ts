@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { canSaveGrant } from "@/lib/subscription";
 
 export async function GET() {
   const session = await auth();
@@ -45,6 +46,34 @@ export async function POST(request: NextRequest) {
         { error: "grantSource, externalId, and title are required" },
         { status: 400 }
       );
+    }
+
+    // Check if this grant already exists (updating existing doesn't count against limit)
+    const existingGrant = await prisma.savedGrant.findUnique({
+      where: {
+        userId_grantSource_externalId: {
+          userId: session.user.id,
+          grantSource,
+          externalId,
+        },
+      },
+    });
+
+    // Only check limits if this is a new grant
+    if (!existingGrant) {
+      const saveCheck = await canSaveGrant(session.user.id);
+      if (!saveCheck.allowed) {
+        return NextResponse.json(
+          {
+            error: "Save limit reached",
+            message: `You've reached the limit of ${saveCheck.limit} saved grants. Upgrade your plan to save more.`,
+            limit: saveCheck.limit,
+            remaining: 0,
+            plan: saveCheck.plan,
+          },
+          { status: 403 }
+        );
+      }
     }
 
     const savedGrant = await prisma.savedGrant.upsert({
