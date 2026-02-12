@@ -69,7 +69,7 @@ export default function BillingPage() {
     setIsManaging(true);
     try {
       const portalUrl = await getCustomerPortalUrl();
-      window.location.href = portalUrl;
+      window.location.href = portalUrl!;
     } catch (error) {
       console.error("Failed to open customer portal:", error);
       alert("Failed to open billing portal. Please try again.");
